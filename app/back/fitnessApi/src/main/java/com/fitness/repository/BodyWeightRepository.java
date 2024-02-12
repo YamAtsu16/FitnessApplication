@@ -10,9 +10,13 @@ import com.fitness.model.BodyWeightModel;
 @Repository
 public interface BodyWeightRepository extends JpaRepository<BodyWeightModel, Integer>{
 	
-	/** "date"の昇順でソートし、全件取得するメソッド */
+	/** "date"の降順でソートし、全件取得するメソッド */
 	public List<BodyWeightModel> findAllByOrderByDate();
 	
-	/** 更新 */
-	public BodyWeightModel save(BodyWeightModel updateData);
+    /** 更新 */
+    @Override
+    <S extends BodyWeightModel> S save(S updateData);
+	
+	/** 削除 */
+	public void deleteById(Integer id);
 }

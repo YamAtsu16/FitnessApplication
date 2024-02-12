@@ -35,4 +35,18 @@ public class BodyWeightService {
 	        return 0;  // 更新失敗
 	    }
 	}
+	
+	/**
+	 * データ削除
+	 * @return 削除件数
+	 */
+	public int delete(Integer id) {
+	    try {
+	        bodyWeightRepository.deleteById(id);
+	        return 1;  // 削除成功
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return 0;  // 削除失敗
+	    }
+	}
 }

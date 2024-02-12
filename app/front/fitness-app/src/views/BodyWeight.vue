@@ -11,8 +11,9 @@
       :visible="isPopupOpen"
       :mode="mode"
       @save="saveRecord"
-      @cancel="closePopup">
-      {{ dialogTitle }}
+      @cancel="closePopup"
+      @delete="deleteRecord"
+    >{{ dialogTitle }}
     </BodyWeightDialog>
 </template>
 
@@ -152,9 +153,26 @@ const saveRecord = () => {
     .catch(() => {
       alert("update failed!")
     })
-
   closePopup();
 };
+
+/**
+ * データ削除
+ */
+const deleteRecord = (target: BodyWeight) => {
+  axios.delete("http://localhost:8099/body-weight", {
+    params: {
+      id: target.id,
+    }
+  })
+    .then(() => {
+      getBodyWeight();
+    })
+    .catch(() => {
+      alert("delete failed!")
+    })
+  closePopup();
+}
 
 /**
  * 入力値のリセット
@@ -174,17 +192,14 @@ const resetInput = () => {
   justify-content: right;
 
   button {
+    cursor: pointer;
     padding: 12px 22px;
     font-size: 18px;
-    cursor: pointer;
     border: none;
     border-radius: 4px;
     background-color: rgb(75, 192, 192);
     color: white;
     font-weight: bold;
-    // height: 40px;
-    // width: 80px;
-    // font-size: 16px;
   }
 }
 
