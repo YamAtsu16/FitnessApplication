@@ -1,34 +1,34 @@
 <template>
   <h1>Body Weight</h1>
     <div class="container">
-      <button @click="openPopup">Add</button>
+      <button @click="addClick">Add</button>
     </div>
     <LineChart :data="rows"></LineChart>
-    <StyledTable :headers="headers" :rows="rows"></StyledTable>
+    <StyledTable :headers="headers" :rows="rows" @edit="editClick"></StyledTable>
     <!-- ポップアップ -->
-    <div v-if="isPopupOpen" class="popup">
-      <div class="popup-main">
-        <h2>Add Record</h2>
-        <div>
-          <span>Date</span>
-          <input v-model="newRecord.date" type="date">
-        </div>
-        <div>
-          <span>Weight</span>
-          <input v-model="newRecord.weight" type="number">
-        </div>
-        <button @click="saveRecord">Save</button>
-        <button @click="closePopup">Close</button>
-      </div>
-    </div>
+    <BodyWeightDialog
+      :data="postRecord"
+      :visible="isPopupOpen"
+      :mode="mode"
+      @save="saveRecord"
+      @cancel="closePopup">
+      {{ dialogTitle }}
+    </BodyWeightDialog>
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, onMounted, ref, watch } from "vue";
-import StyledTable from "@/components/StyledTable.vue";
-import LineChart from "@/components/LineChart.vue";
+import { computed, onBeforeMount, ref } from "vue";
+import StyledTable from "../components/StyledTable.vue";
+import LineChart from "../components/LineChart.vue";
+import BodyWeightDialog from "../components/BodyWeigtDialog.vue";
 import axios from 'axios';
 import { BodyWeight } from "../types/BodyWeightType"
+
+const ModeConstants = {
+  INQUIRY: 1,
+  ADD: 2,
+  EDIT: 3
+} as const
 
 /** テーブルヘッダー */
 const headers = ref<string[]>(['ID', 'Date', 'Weight', 'Edit']);
@@ -38,6 +38,19 @@ const rows = ref<BodyWeight[]>([]);
 
 /** ポップアップ表示フラグ */
 const isPopupOpen = ref(false);
+
+/** 画面モード */
+const mode = ref<1|2|3>(ModeConstants.INQUIRY);
+
+const dialogTitle = computed(() => {
+  if (mode.value === ModeConstants.ADD) {
+    return "Add Record"
+  } else if (mode.value === ModeConstants.EDIT){
+    return "Edit Record"
+  } else {
+    return "";
+  }
+})
 
 /**
  * マウント前の処理
@@ -66,18 +79,38 @@ const getBodyWeight = () => {
 }
 
 /**
+ * ADDボタンクリック時
+ */
+const addClick = () => {
+  openPopup();
+  mode.value = ModeConstants.ADD
+  resetInput();
+}
+
+/**
+ * EDITボタンクリック時
+ */
+const editClick = (id: number) => {
+  openPopup();
+  mode.value = ModeConstants.EDIT
+  const selectRow = rows.value.filter((data: BodyWeight) => {
+    return data.id === id
+  })
+  postRecord.value = structuredClone(selectRow[0]);
+}
+
+/**
  * ポップアップを開く
  */
 const openPopup = () => {
-  resetInput();
   isPopupOpen.value = true;
 };
 
 /**
- * ポップアップを閉じる 
+ * ポップアップを閉じる
  */
 const closePopup = () => {
-  resetInput();
+  mode.value = ModeConstants.INQUIRY
   isPopupOpen.value = false;
 };
 
@@ -93,8 +126,9 @@ const formatDate = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
-/** 新規登録データ */
-const newRecord = ref({
+/** 送信データ */
+const postRecord = ref<BodyWeight>({
+  id: 0,
   date: formatDate(new Date()),
   weight: 0,
 });
@@ -103,7 +137,15 @@ const newRecord = ref({
  * データ登録
  */
 const saveRecord = () => {
-  axios.post("http://localhost:8099/body-weight", newRecord.value)
+  // 新規登録の場合、すでに登録済みの日付がある場合は更新処理を実行する
+  if (rows.value.length !== 0 && mode.value === ModeConstants.ADD) {
+    rows.value.forEach((e: BodyWeight) => {
+      if (e.date === postRecord.value.date) {
+        postRecord.value.id = e.id;
+      }
+    })
+  }
+  axios.post("http://localhost:8099/body-weight", postRecord.value)
     .then(() => {
       getBodyWeight();
     })
@@ -118,7 +160,8 @@ const saveRecord = () => {
  * 入力値のリセット
  */
 const resetInput = () => {
-  newRecord.value = {
+  postRecord.value = {
+    id: 0,
     date: formatDate(new Date()),
     weight: 0,
   }
@@ -131,9 +174,17 @@ const resetInput = () => {
   justify-content: right;
 
   button {
-    height: 40px;
-    width: 80px;
-    font-size: 16px;
+    padding: 12px 22px;
+    font-size: 18px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    background-color: rgb(75, 192, 192);
+    color: white;
+    font-weight: bold;
+    // height: 40px;
+    // width: 80px;
+    // font-size: 16px;
   }
 }
 
@@ -168,6 +219,11 @@ const resetInput = () => {
       width: 150px;
     }
 
+    .button-container {
+      display: flex;
+      justify-content: center;
+    }
+    
     button {
       margin-top: 10px;
     }

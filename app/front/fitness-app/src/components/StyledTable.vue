@@ -1,3 +1,4 @@
+
 <template>
   <div class="table-container">
     <table class="styled-table">
@@ -17,17 +18,24 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue'
+import { defineProps, defineEmits } from 'vue'
 import { BodyWeight } from "../types/BodyWeightType"
 
+/** Emits */
+const emit = defineEmits(['edit']);
 
-defineProps<{
+/** Props */
+const props = defineProps<{
   headers: string[],
   rows: BodyWeight[]
 }>();
 
+/**
+ * レコード選択
+ * @param id ID
+ */
 const editRow = (id: number) => {
-  console.log(`Editing row with ID: ${id}`);
+  emit('edit', id);
 };
 </script>
 
