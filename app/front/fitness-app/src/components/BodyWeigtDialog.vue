@@ -2,6 +2,9 @@
   <div v-if="props.visible" class="popup">
     <div class="popup-main">
       <h2><slot></slot></h2>
+      <div v-if="hasError" style="color: red;font-weight: bold;">
+        {{ errorMessage }}
+      </div>
       <div>
         <span>Date</span>
         <input v-model="record.date" type="date">
@@ -41,10 +44,21 @@ const props = defineProps<{
 /** 入力データ */
 const record = computed(() => props.data)
 
+/** 入力エラーの有無 */
+const hasError = ref(false);
+
+const errorMessage = ref("");
+
 /**
  * 保存ボタンクリック時
  */
 const save = () => {
+  if (record.value.date === "") {
+    hasError.value = true;
+    errorMessage.value = "日時が入力されていません"
+    return;
+  }
+  hasError.value = false;
   emit('save', record.value);
 };
 
@@ -52,6 +66,7 @@ const save = () => {
  * 削除ボタンクリック時
  */
 const deleteRecord = () => {
+  hasError.value = false;
   emit('delete', record.value);
 };
 
@@ -59,6 +74,7 @@ const deleteRecord = () => {
  * キャンセルボタンクリック時
  */
 const cancel = () => {
+  hasError.value = false;
   emit('cancel');
 };
 </script>

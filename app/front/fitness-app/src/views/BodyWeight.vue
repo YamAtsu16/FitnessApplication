@@ -90,6 +90,7 @@ const addClick = () => {
 
 /**
  * EDITボタンクリック時
+ * @param id 対象データのID
  */
 const editClick = (id: number) => {
   openPopup();
@@ -116,8 +117,9 @@ const closePopup = () => {
 };
 
 /**
- * 日付フォーマット（GYYY-MM-DD）
- * @param date 
+ * 日付フォーマット
+ * @param date 日付
+ * @return 文字列の日付（GYYY-MM-DD）
  */
 const formatDate = (date: Date): string => {
   const year = date.getFullYear();
@@ -158,6 +160,7 @@ const saveRecord = () => {
 
 /**
  * データ削除
+ * @param target 削除対象
  */
 const deleteRecord = (target: BodyWeight) => {
   axios.delete("http://localhost:8099/body-weight", {
