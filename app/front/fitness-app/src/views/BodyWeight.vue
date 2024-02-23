@@ -1,20 +1,19 @@
 <template>
-  <h1>Body Weight</h1>
-    <div class="container">
-      <button @click="addClick">Add</button>
-    </div>
-    <LineChart :data="rows"></LineChart>
-    <StyledTable :headers="headers" :rows="rows" @edit="editClick"></StyledTable>
-    <!-- ポップアップ -->
-    <BodyWeightDialog
-      :data="postRecord"
-      :visible="isPopupOpen"
-      :mode="mode"
-      @save="saveRecord"
-      @cancel="closePopup"
-      @delete="deleteRecord"
-    >{{ dialogTitle }}
-    </BodyWeightDialog>
+  <div class="container">
+    <button @click="addClick">Add</button>
+  </div>
+  <LineChart :data="rows"></LineChart>
+  <StyledTable :headers="headers" :rows="rows" @edit="editClick"></StyledTable>
+  <!-- ポップアップ -->
+  <BodyWeightDialog
+    :data="postRecord"
+    :visible="isPopupOpen"
+    :mode="mode"
+    @save="saveRecord"
+    @cancel="closePopup"
+    @delete="deleteRecord"
+  >{{ dialogTitle }}
+  </BodyWeightDialog>
 </template>
 
 <script setup lang="ts">
