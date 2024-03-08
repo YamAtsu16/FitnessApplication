@@ -1,9 +1,9 @@
 <template>
-  <div class="container">
+  <div class="button-container">
     <button @click="addClick">Add</button>
   </div>
-  <LineChart :data="rows"></LineChart>
-  <StyledTable :headers="headers" :rows="rows" @edit="editClick"></StyledTable>
+  <LineChart :data="weight"></LineChart>
+  <StyledTable :headers="headers" :rows="sortedWeight" @edit="editClick"></StyledTable>
   <!-- ポップアップ -->
   <BodyWeightDialog
     :data="postRecord"
@@ -18,9 +18,9 @@
 
 <script setup lang="ts">
 import { computed, onBeforeMount, ref } from "vue";
-import StyledTable from "../components/StyledTable.vue";
-import LineChart from "../components/LineChart.vue";
-import BodyWeightDialog from "../components/BodyWeigtDialog.vue";
+import StyledTable from "@/components/bodyWeight/StyledTable.vue";
+import LineChart from "@/components/bodyWeight/LineChart.vue";
+import BodyWeightDialog from "@/components/bodyWeight/BodyWeigtDialog.vue";
 import axios from 'axios';
 import { BodyWeight } from "../types/BodyWeightType"
 
@@ -33,8 +33,11 @@ const ModeConstants = {
 /** テーブルヘッダー */
 const headers = ref<string[]>(['ID', 'Date', 'Weight', 'Edit']);
 
-/** テーブルデータ */
-const rows = ref<BodyWeight[]>([]);
+/** 体重データ */
+const weight = ref<BodyWeight[]>([]);
+
+/** 体重データ（ソート表示用） */
+const sortedWeight = ref<BodyWeight[]>([]);
 
 /** ポップアップ表示フラグ */
 const isPopupOpen = ref(false);
@@ -48,7 +51,7 @@ const dialogTitle = computed(() => {
   } else if (mode.value === ModeConstants.EDIT){
     return "Edit Record"
   } else {
-    return "";
+    return "Let's record the first data!!";
   }
 })
 
@@ -65,13 +68,23 @@ onBeforeMount(() => {
 const getBodyWeight = () => {
   axios.get("http://localhost:8099/body-weight")
     .then((response) => {
-      rows.value = response.data.map((data: BodyWeight) => {
-        return {
-          id: data.id,
-          date: String(data.date),
-          weight: data.weight,
-        }
-      })
+      if (response.data.length !== 0) {
+        const data: BodyWeight[] = response.data.map((data: BodyWeight) => {
+          return {
+            id: data.id,
+            date: String(data.date),
+            weight: data.weight,
+          }
+        })
+        // グラフ用に取得（日付の昇順）
+        weight.value = structuredClone(data);
+        // テーブル表示用に取得（日付の降順）
+        sortedWeight.value = data.sort((a,b) => {
+          return a.date < b.date ? 1 : -1;
+        })
+      } else {
+        openPopup();
+      }
     })
     .catch(() => {
       alert("failed")
@@ -94,7 +107,7 @@ const addClick = () => {
 const editClick = (id: number) => {
   openPopup();
   mode.value = ModeConstants.EDIT
-  const selectRow = rows.value.filter((data: BodyWeight) => {
+  const selectRow = weight.value.filter((data: BodyWeight) => {
     return data.id === id
   })
   postRecord.value = structuredClone(selectRow[0]);
@@ -140,8 +153,8 @@ const postRecord = ref<BodyWeight>({
  */
 const saveRecord = () => {
   // 新規登録の場合、すでに登録済みの日付がある場合は更新処理を実行する
-  if (rows.value.length !== 0 && mode.value === ModeConstants.ADD) {
-    rows.value.forEach((e: BodyWeight) => {
+  if (weight.value.length !== 0 && mode.value === ModeConstants.ADD) {
+    weight.value.forEach((e: BodyWeight) => {
       if (e.date === postRecord.value.date) {
         postRecord.value.id = e.id;
       }
@@ -189,7 +202,8 @@ const resetInput = () => {
 
 </script>
 <style scoped lang="scss">
-.container {
+.button-container {
+  width: 100%;
   display: flex;
   justify-content: right;
 
@@ -203,46 +217,5 @@ const resetInput = () => {
     color: white;
     font-weight: bold;
   }
-}
-
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-    .popup-main {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    }
-
-    div {
-      margin-bottom: 10px;
-    }
-    
-    span {
-      display: inline-block;
-      width: 60px;
-      text-align: left;
-    }
-    
-    input {
-      width: 150px;
-    }
-
-    .button-container {
-      display: flex;
-      justify-content: center;
-    }
-    
-    button {
-      margin-top: 10px;
-    }
 }
 </style>

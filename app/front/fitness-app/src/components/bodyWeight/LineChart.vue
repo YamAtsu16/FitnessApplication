@@ -4,10 +4,10 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, watch, normalizeStyle } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import Chart from 'chart.js/auto';
 import { defineProps } from 'vue';
-import { BodyWeight } from "../types/BodyWeightType"
+import { BodyWeight } from "../../types/BodyWeightType"
 
 const props = defineProps<{
   data: BodyWeight[]
@@ -93,3 +93,14 @@ const updateGraph = () => {
   }
 }
 </script>
+<style scoped lang="scss">
+.line-chart-container {
+  width: 100%;
+  height: 600px;
+}
+
+#line-chart {
+  width: 100%;
+  height: 100%;
+}
+</style>

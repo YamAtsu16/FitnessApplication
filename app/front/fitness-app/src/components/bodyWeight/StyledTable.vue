@@ -3,9 +3,7 @@
   <div class="table-container">
     <table class="styled-table">
       <thead>
-        <tr>
-          <th v-for="header in headers" :key="header">{{ header }}</th>
-        </tr>
+        <th v-for="header in headers" :key="header">{{ header }}</th>
       </thead>
       <tbody>
         <tr v-for="row in rows" :key="row.id">
@@ -19,7 +17,7 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue'
-import { BodyWeight } from "../types/BodyWeightType"
+import { BodyWeight } from "../../types/BodyWeightType"
 
 /** Emits */
 const emit = defineEmits(['edit']);
@@ -42,7 +40,7 @@ const editRow = (id: number) => {
 <style scoped lang="scss">
 .table-container {
   width: 100%;
-  margin: 20px auto;
+  margin: 0 auto;
   overflow: auto;
   max-height: 500px;
 }

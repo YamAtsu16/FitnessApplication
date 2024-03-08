@@ -2,24 +2,22 @@
   <div v-if="props.visible" class="popup">
     <div class="popup-main">
       <h2><slot></slot></h2>
-      <div v-if="hasError" style="color: red;font-weight: bold;">
-        {{ errorMessage }}
-      </div>
-      <div>
+      <div v-if="hasError" class="error-message">{{ errorMessage }}</div>
+      <div class="input-field">
         <span>Date</span>
         <input v-model="record.date" type="date">
       </div>
-      <div>
+      <div class="input-field">
         <span>Weight</span>
         <input v-model="record.weight" type="number">
       </div>
       <div class="button-container">
-        <div>
-          <button class="save-button" @click="save">Save</button>
-          <button class="close-button" @click="cancel">Close</button>
+        <div class="left">
+          <button v-if="props.mode === 3" class="button delete-button" @click="deleteRecord">Delete</button>
         </div>
-        <div>
-          <button v-if="props.mode === 3" class="delete-button" @click="deleteRecord">Delete</button>
+        <div class="right">
+          <button class="button save-button" @click="save">Save</button>
+          <button class="button close-button" @click="cancel">Close</button>
         </div>
       </div>
     </div>
@@ -55,7 +53,7 @@ const errorMessage = ref("");
 const save = () => {
   if (record.value.date === "") {
     hasError.value = true;
-    errorMessage.value = "日時が入力されていません"
+    errorMessage.value = "Date is required"
     return;
   }
   hasError.value = false;
@@ -96,36 +94,57 @@ const cancel = () => {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 90%;
   }
 
-  div {
+  .error-message {
+    color: red;
+    font-weight: bold;
     margin-bottom: 10px;
   }
 
+  .input-field {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+  }
+
   span {
-    display: inline-block;
     width: 60px;
-    text-align: left;
+    margin-right: 10px;
+    font-weight: bold;
   }
 
   input {
-    width: 150px;
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
   }
 
   .button-container {
-    margin-top: 30px
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
   }
 
-  .save-button,
-  .close-button,
-  .delete-button {
+  .button {
     padding: 8px 12px;
     font-size: 14px;
     cursor: pointer;
     border: none;
     border-radius: 4px;
-    color: white;
     font-weight: bold;
+    color: white;
+  }
+
+  .left {
+    text-align: left;
+  }
+
+  .right {
+    text-align: right;
   }
 
   .save-button {
@@ -138,7 +157,6 @@ const cancel = () => {
   }
 
   .delete-button {
-    margin-top: 50px;
     background-color: red;
   }
 }

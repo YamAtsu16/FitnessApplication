@@ -1,6 +1,6 @@
 <template>
   <div class="footer">
-    Fitness Application@2024
+    2024@Fitness Application
   </div>
 </template>
 <script setup lang="ts">
