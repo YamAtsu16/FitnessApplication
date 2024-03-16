@@ -31,7 +31,7 @@ const ModeConstants = {
 } as const
 
 /** テーブルヘッダー */
-const headers = ref<string[]>(['ID', 'Date', 'Weight', 'Edit']);
+const headers = ref<string[]>(['No', 'Date', 'Weight', 'Edit']);
 
 /** 体重データ */
 const weight = ref<BodyWeight[]>([]);
